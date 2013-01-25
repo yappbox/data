@@ -453,8 +453,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // let the adapter set the data, possibly async
     var adapter = this.adapterForType(type);
-    if (adapter && adapter.find) { adapter.find(this, type, id); }
-    else { throw "Adapter is either null or does not implement `find` method"; }
+    if (adapter && adapter.find) {
+      var failure = function() {
+        record.trigger('becameError');
+      };
+      var promise = adapter.find(this, type, id);
+      if (promise && promise.then) {
+        promise.then(null, failure);
+      }
+    } else {
+      throw "Adapter is either null or does not implement `find` method";
+    }
 
     return record;
   },
