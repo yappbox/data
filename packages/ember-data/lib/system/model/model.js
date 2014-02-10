@@ -768,7 +768,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     if (data) { this.pushedData(); }
 
-    if (!partial && !attributesChanged && Ember.keys(this._relationships).length === 0) {
+    var typeKey, useHack;
+    typeKey = this.constructor.typeKey;
+    useHack = typeKey === 'feedEntry' || typeKey === 'crowdPicsImage';
+
+    if (useHack && !partial && !attributesChanged && Ember.keys(this._relationships).length === 0) {
       return;
     }
 
