@@ -744,10 +744,17 @@ var Model = Ember.Object.extend(Ember.Evented, {
       if (rel.options.async) { relationships[name] = null; }
     });
 
-    if (data) { this.pushedData(); }
+    var _data = { };
+    if (data) {
+      this.constructor.eachAttribute(function(key) {
+        _data[key] = data[key];
+      });
+      this.pushedData();
+    }
+    //debugger;
 
     this.suspendRelationshipObservers(function() {
-      this.notifyPropertyChange('data');
+      this.setProperties(_data);
     });
   },
 
