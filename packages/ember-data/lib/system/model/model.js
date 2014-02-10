@@ -736,9 +736,26 @@ var Model = Ember.Object.extend(Ember.Evented, {
       the existing data, not replace it.
   */
   setupData: function(data, partial) {
+    var oldData, attributesChanged = false;
+
     if (partial) {
       Ember.merge(this._data, data);
     } else {
+      oldData = this._data;
+      // attributes because relationships will be different ember objects,
+      // compare as strings because identical dates will be different otherwise
+      this.eachAttribute(function(name) {
+        if (window.Y$ && data[name] instanceof window.Y$.Image) { // todo: Comparable
+          if (oldData[name] && data[name] && data[name]['originalUrl'] !== oldData[name]['originalUrl']) {
+            attributesChanged = true;
+          }
+        } else { // not a Y$.Image
+          if (""+oldData[name] !== ""+data[name]) {
+            attributesChanged = true;
+          }
+        }
+      });
+
       this._data = data;
     }
 
@@ -750,6 +767,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
 
     if (data) { this.pushedData(); }
+
+    if (!partial && !attributesChanged && Ember.keys(this._relationships).length === 0) {
+      return;
+    }
 
     this.suspendRelationshipObservers(function() {
       this.notifyPropertyChange('data');
