@@ -745,7 +745,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       // attributes because relationships will be different ember objects,
       // compare as strings because identical dates will be different otherwise
       this.eachAttribute(function(name) {
-        if (window.Y$ && data[name] instanceof window.Y$.Image) { // todo: Comparable
+        if (window.Y$ && window.Y$.Image && data[name] instanceof window.Y$.Image) { // todo: Comparable
           if (oldData[name] && data[name] && data[name]['originalUrl'] !== oldData[name]['originalUrl']) {
             attributesChanged = true;
           }
